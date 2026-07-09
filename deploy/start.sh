@@ -14,7 +14,14 @@ cd /app/cluster
 # `storage:` unset so local setup keeps defaulting to the config
 # directory itself, per README.md. This container's copy is disposable
 # (baked into the image, never affects the git repo or local dev), so
-# patch in the persistent-disk path here, once, idempotently.
+# patch in this path here, once, idempotently.
+#
+# On Render's free plan (no persistent disk -- see render.yaml), /data is
+# just a directory on the container's own ephemeral filesystem: it
+# survives while the service stays up, but a free-tier restart (spin-down
+# from inactivity, or a redeploy) wipes it, same as anything else in the
+# container. Re-run ingestion + approval to repopulate `main` if that
+# happens before a demo.
 grep -q '^storage:' cluster.yaml || echo 'storage: /data' >> cluster.yaml
 
 # Idempotent -- safe on every boot/redeploy.
