@@ -7,12 +7,16 @@
 
 	# Each MCP server listens on its own internal port at the FastMCP
 	# default path (/mcp). handle_path strips the matched prefix, then
-	# rewrite puts back exactly the path each server expects.
-	handle_path /mcp/content-agent/* {
+	# rewrite puts back exactly the path each server expects. Matching
+	# both the bare path and the /* form -- an MCP client's configured
+	# URL is exactly "/mcp/content-agent", no trailing slash, which the
+	# /* form alone does NOT match (it requires something after the
+	# slash), silently falling through to the catch-all instead.
+	handle_path /mcp/content-agent /mcp/content-agent/* {
 		rewrite * /mcp
 		reverse_proxy 127.0.0.1:9001
 	}
-	handle_path /mcp/gtm-agent/* {
+	handle_path /mcp/gtm-agent /mcp/gtm-agent/* {
 		rewrite * /mcp
 		reverse_proxy 127.0.0.1:9002
 	}
