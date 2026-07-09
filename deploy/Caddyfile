@@ -1,4 +1,4 @@
-{$PORT} {
+:{$PORT} {
 	# Dashboard API -- backend routes are already defined with the /api
 	# prefix baked in (main.py), so forward as-is, no path rewrite.
 	handle /api/* {
