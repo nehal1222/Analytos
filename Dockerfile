@@ -12,8 +12,12 @@
 # ---- Stage 1: build the Rust engine from source (Linux target) ---------
 FROM rust:1-bookworm AS rust-builder
 
+# protobuf-compiler alone doesn't include the "well-known types" proto
+# files (google/protobuf/empty.proto etc.) that lance-encoding's build
+# script imports -- those come from libprotobuf-dev, a separate package.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     protobuf-compiler \
+    libprotobuf-dev \
     git \
     && rm -rf /var/lib/apt/lists/*
 
