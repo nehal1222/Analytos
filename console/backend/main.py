@@ -46,6 +46,14 @@ app = FastAPI(title="Analytos Context Layer Console")
 # origin (comma-separated for more than one).
 FRONTEND_ORIGINS = os.environ.get("FRONTEND_ORIGIN", "http://127.0.0.1:5173").split(",")
 COOKIE_SECURE = os.environ.get("COOKIE_SECURE", "false").lower() == "true"
+# Local dev proxies the frontend and backend behind the same origin (Vite's
+# proxy in vite.config.js), so the cookie is same-site there and "strict"
+# is correct and safest. Hosted, the frontend (Netlify) and backend
+# (Render) are different domains -- a genuinely cross-site request -- and
+# SameSite=Strict/Lax cookies are never sent cross-site at all, silently
+# breaking login. SameSite=None (requires Secure) is the only setting that
+# works cross-site, so it must be opt-in per deployment, not the default.
+COOKIE_SAMESITE = os.environ.get("COOKIE_SAMESITE", "strict")
 
 app.add_middleware(
     CORSMiddleware,
@@ -94,7 +102,7 @@ def login(body: LoginRequest, response: Response):
         auth.SESSION_COOKIE,
         token,
         httponly=True,
-        samesite="strict",
+        samesite=COOKIE_SAMESITE,
         secure=COOKIE_SECURE,
         max_age=auth.SESSION_TTL_SECONDS,
     )

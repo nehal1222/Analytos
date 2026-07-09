@@ -1,0 +1,23 @@
+{$PORT} {
+	# Dashboard API -- backend routes are already defined with the /api
+	# prefix baked in (main.py), so forward as-is, no path rewrite.
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	# Each MCP server listens on its own internal port at the FastMCP
+	# default path (/mcp). handle_path strips the matched prefix, then
+	# rewrite puts back exactly the path each server expects.
+	handle_path /mcp/content-agent/* {
+		rewrite * /mcp
+		reverse_proxy 127.0.0.1:9001
+	}
+	handle_path /mcp/gtm-agent/* {
+		rewrite * /mcp
+		reverse_proxy 127.0.0.1:9002
+	}
+
+	handle {
+		respond "Analytos Context Layer -- see /api/docs and /mcp/{content-agent,gtm-agent}" 200
+	}
+}

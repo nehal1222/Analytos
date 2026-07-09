@@ -1,0 +1,35 @@
+# Render Blueprint: ONE service, everything bundled (see Dockerfile +
+# deploy/start.sh + deploy/Caddyfile). Needs a paid plan (not free) because
+# it needs a persistent disk -- Render's free tier has none, and the graph
+# data must survive restarts/redeploys.
+#
+# After first deploy, Render assigns this service's public URL
+# (https://<name>-<hash>.onrender.com). Once you have it:
+#   - set FRONTEND_ORIGIN below to your Netlify URL (needed for the
+#     dashboard's cookie-based login to work cross-origin)
+#   - the MCP endpoints for an external client (Claude Desktop/Code, or
+#     the evaluator) are:
+#       https://<this-service>.onrender.com/mcp/content-agent
+#       https://<this-service>.onrender.com/mcp/gtm-agent
+#   - the dashboard API (what the Netlify frontend calls) is:
+#       https://<this-service>.onrender.com/api
+
+services:
+  - type: web
+    name: analytos-context-layer
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    disk:
+      name: analytos-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: FRONTEND_ORIGIN
+        sync: false # fill in: your Netlify URL, e.g. https://analytos.netlify.app
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_SAMESITE
+        value: "none" # required: frontend (Netlify) and backend (Render) are different domains
+      - key: SESSION_SECRET
+        generateValue: true

@@ -6,6 +6,13 @@ state:
   backend: cluster
   lock: true
 
+# Local dev / this repo's own cluster/ directory: storage defaults to the
+# config directory itself (unset). The HOSTED deployment overrides this at
+# the container level -- see deploy/start.sh and render.yaml, which mount
+# a persistent disk at /data and expect `storage: /data` here instead.
+# Left unset here so `git clone` + local setup (README.md) keeps working
+# exactly as documented without extra steps.
+
 providers:
   embedding:
     default:

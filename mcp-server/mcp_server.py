@@ -1,12 +1,18 @@
 """MCP server exposing OmniGraph stored queries as tools, scoped per role.
 
-Run one process per agent role (e.g. as two separate entries in a Claude
-Desktop / Claude Code MCP config), with the query gateway (gateway.py)
-already running:
+Local use (Claude Desktop/Code spawns this as a subprocess over stdio), with
+the query gateway (gateway.py) already running:
 
     python gateway.py &
     python mcp_server.py --role content-agent
     python mcp_server.py --role gtm-agent
+
+Hosted use (a remote MCP client connects over HTTP -- e.g. deployed
+alongside the query gateway so an evaluator's own Claude Desktop/Code can
+point at a URL instead of spawning a local process):
+
+    python mcp_server.py --role content-agent --transport streamable-http --host 0.0.0.0 --port 9001
+    python mcp_server.py --role gtm-agent      --transport streamable-http --host 0.0.0.0 --port 9002
 
 See policy.yaml and gateway.py for why role -> query scoping is enforced by
 a real gateway service now, not just by which tools this process happens
@@ -33,7 +39,7 @@ def load_policy() -> dict:
     return yaml.safe_load(POLICY_PATH.read_text(encoding="utf-8"))
 
 
-def build_server(role: str) -> FastMCP:
+def build_server(role: str, host: str = "127.0.0.1", port: int = 8000) -> FastMCP:
     policy = load_policy()
     if role not in policy["roles"]:
         raise SystemExit(f"unknown role '{role}'; known roles: {sorted(policy['roles'])}")
@@ -41,7 +47,7 @@ def build_server(role: str) -> FastMCP:
 
     tools.CLIENT = tools.GatewayClient(role_config["gateway_api_key"])
 
-    mcp = FastMCP(f"analytos-context-{role}")
+    mcp = FastMCP(f"analytos-context-{role}", host=host, port=port)
     for tool_name in role_config["allowed_queries"]:
         fn = tools.TOOL_REGISTRY[tool_name]
         mcp.add_tool(fn, name=tool_name, description=(fn.__doc__ or "").strip())
@@ -51,10 +57,17 @@ def build_server(role: str) -> FastMCP:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--role", required=True, choices=["content-agent", "gtm-agent"])
+    parser.add_argument(
+        "--transport", default="stdio", choices=["stdio", "streamable-http"],
+        help="stdio for a locally-spawned MCP client (Claude Desktop/Code); "
+        "streamable-http to serve over the network for a remote client",
+    )
+    parser.add_argument("--host", default="127.0.0.1", help="only used with --transport streamable-http")
+    parser.add_argument("--port", type=int, default=8000, help="only used with --transport streamable-http")
     args = parser.parse_args()
 
-    mcp = build_server(args.role)
-    mcp.run()
+    mcp = build_server(args.role, host=args.host, port=args.port)
+    mcp.run(transport=args.transport)
 
 
 if __name__ == "__main__":

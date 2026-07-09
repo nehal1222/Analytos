@@ -1,0 +1,7 @@
+# These files run inside a Linux container (see Dockerfile/deploy/) --
+# CRLF line endings would silently break them (e.g. a shebang line ending
+# in \r causes "bad interpreter" errors). Force LF regardless of the
+# committer's core.autocrlf setting or editor.
+*.sh text eol=lf
+Dockerfile text eol=lf
+Caddyfile text eol=lf
