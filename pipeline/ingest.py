@@ -10,6 +10,7 @@ duplicates nodes), and writes a run manifest to runs/<run_id>.json that the
 review service (../review) reads to render the HITL diff.
 """
 
+
 from __future__ import annotations
 
 import argparse

@@ -22,6 +22,7 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
+import time
 from contextlib import AsyncExitStack
 
 from mcp import ClientSession, StdioServerParameters
@@ -111,6 +112,51 @@ async def _run_claude_agent(role: str, system_prompt: str, user_prompt: str, mod
 
 # ---------------------------------------------------------------- Gemini --
 
+def _retry_delay_seconds(error, default: float) -> float:
+    """Pull the server-suggested backoff (RetryInfo.retryDelay, e.g. '31s')
+    out of a 429's error details, if present, instead of guessing."""
+    for detail in (getattr(error, "details", None) or {}).get("error", {}).get("details", []):
+        if detail.get("@type") == "type.googleapis.com/google.rpc.RetryInfo":
+            raw = detail.get("retryDelay", "")
+            if raw.endswith("s"):
+                try:
+                    return max(float(raw[:-1]), default)
+                except ValueError:
+                    pass
+    return default
+
+
+def _generate_with_retry(client, model: str, contents, config, attempts: int = 4):
+    """Gemini's free-tier models occasionally return 503 UNAVAILABLE under
+    load -- transient, not a bug, and resolves within seconds. The free tier
+    also caps gemini-2.5-flash at 5 requests/minute, so a burst of tool-use
+    turns can trip a 429 RESOURCE_EXHAUSTED mid-run. Both are worth retrying
+    with backoff so a demo run doesn't fail outright on a blip or a quota
+    window. Other errors (bad API key, invalid request, ...) are re-raised
+    immediately -- retrying those would just waste time on something a
+    retry can't fix.
+    """
+    from google.genai.errors import ClientError, ServerError
+
+    delay = 3
+    for attempt in range(1, attempts + 1):
+        try:
+            return client.models.generate_content(model=model, contents=contents, config=config)
+        except ServerError:
+            if attempt == attempts:
+                raise
+            print(f"  (Gemini 503 -- transient overload, retrying in {delay}s, attempt {attempt}/{attempts})")
+            time.sleep(delay)
+            delay *= 2
+        except ClientError as e:
+            if e.code != 429 or attempt == attempts:
+                raise
+            wait = _retry_delay_seconds(e, delay)
+            print(f"  (Gemini 429 -- rate/quota limited, retrying in {wait:.0f}s, attempt {attempt}/{attempts})")
+            time.sleep(wait)
+            delay *= 2
+
+
 async def _run_gemini_agent(role: str, system_prompt: str, user_prompt: str, model: str) -> str:
     from google import genai
     from google.genai import types
@@ -144,7 +190,7 @@ async def _run_gemini_agent(role: str, system_prompt: str, user_prompt: str, mod
         contents = [types.Content(role="user", parts=[types.Part(text=user_prompt)])]
 
         for _ in range(MAX_TOOL_TURNS):
-            response = client.models.generate_content(model=model, contents=contents, config=config)
+            response = _generate_with_retry(client, model, contents, config)
             candidate = response.candidates[0]
             contents.append(candidate.content)
 
