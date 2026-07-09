@@ -24,7 +24,11 @@ cd /app/cluster
 # happens before a demo.
 grep -q '^storage:' cluster.yaml || echo 'storage: /data' >> cluster.yaml
 
-# Idempotent -- safe on every boot/redeploy.
+# `cluster apply` requires state.json to already exist -- `cluster import`
+# bootstraps it on a genuinely fresh /data, and fails harmlessly
+# (state_already_exists) on every later boot once it's there, hence `||
+# true`. Then apply is itself idempotent on every boot/redeploy.
+omnigraph cluster import --config . || true
 omnigraph cluster apply --config .
 
 omnigraph-server --cluster . --bind 127.0.0.1:8080 &
