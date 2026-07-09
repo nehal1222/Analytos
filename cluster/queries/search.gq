@@ -1,0 +1,47 @@
+// Hybrid retrieval (vector nearest-neighbor + BM25 + Reciprocal Rank Fusion)
+// backing the dashboard search box and the MCP search tools. Callers pass a
+// single plain-text query ($q); `nearest($x.embedding, $q)` auto-embeds it
+// server-side via the graph's configured embedding provider (the `mock`
+// provider for this POC -- see cluster.yaml). A single Vector-typed
+// parameter isn't usable here: MCP tool callers (an LLM) can only supply
+// JSON-primitive tool arguments, never a raw embedding vector.
+
+query search_products($q: String)
+  @description("Hybrid search over products.") {
+  match { $p: Product }
+  return { $p.slug as slug, $p.name as name, $p.summary as summary }
+  order { rrf(nearest($p.embedding, $q), bm25($p.summary, $q)) }
+  limit 10
+}
+
+query search_features($q: String)
+  @description("Hybrid search over features.") {
+  match { $f: Feature }
+  return { $f.slug as slug, $f.name as name, $f.description as description }
+  order { rrf(nearest($f.embedding, $q), bm25($f.description, $q)) }
+  limit 10
+}
+
+query search_proof_points($q: String)
+  @description("Hybrid search over proof points.") {
+  match { $pp: ProofPoint }
+  return { $pp.slug as slug, $pp.label as label, $pp.value as value, $pp.description as description }
+  order { rrf(nearest($pp.embedding, $q), bm25($pp.description, $q)) }
+  limit 10
+}
+
+query search_decisions($q: String)
+  @description("Hybrid search over decisions.") {
+  match { $d: Decision }
+  return { $d.slug as slug, $d.title as title, $d.description as description }
+  order { rrf(nearest($d.embedding, $q), bm25($d.description, $q)) }
+  limit 10
+}
+
+query search_icp_segments($q: String)
+  @description("Hybrid search over ICP segments.") {
+  match { $s: ICPSegment }
+  return { $s.slug as slug, $s.name as name, $s.competitor_angle as competitor_angle }
+  order { rrf(nearest($s.embedding, $q), bm25($s.competitor_angle, $q)) }
+  limit 10
+}

@@ -1,0 +1,122 @@
+version: 1
+
+# Actor groups. Each actor is a bearer-token identity resolved server-side
+# (never client-settable — see docs/user/operations/policy.md). One actor per
+# reviewer so branch-merge commits are attributed to the human who approved,
+# not a shared "reviewer" identity.
+groups:
+  admins:
+    - act-admin
+  ingestion:
+    - act-ingestion-pipeline
+  reviewers:
+    - act-reviewer-dana
+    - act-reviewer-priya
+    - act-reviewer-ashok
+    - act-reviewer-santosh
+    - act-reviewer-nehal
+  # Only the query-gateway service actor -- NOT act-content-agent /
+  # act-gtm-agent -- gets Cedar grants here. Those two are pure gateway-API
+  # keys now (see mcp-server/gateway.py); they authenticate to the gateway,
+  # never to omnigraph-server directly, and are not registered as Cedar
+  # actors in tokens.dev.json at all. Why: Cedar's invoke_query has no
+  # per-query scope (an allow grants *every* stored query on the graph),
+  # and the ad-hoc query endpoint only checks `read` -- so any actor with
+  # read on main could submit hand-written .gq text and read EmailThread
+  # nodes directly, regardless of what the MCP tool catalog exposes. A
+  # leaked agent-facing key used to mean a leaked, fully-capable bearer
+  # token; now it authenticates to a gateway that only forwards pre-vetted
+  # named queries and never accepts ad-hoc query text at all.
+  query_gateway:
+    - act-query-gateway
+
+protected_branches:
+  - main
+
+# Cedar's native granularity here is per-graph / per-branch (confirmed by
+# reading crates/omnigraph-policy — there is no per-node-type, per-row, or
+# per-query scope yet). This bundle enforces the governance loop this
+# engine CAN enforce natively: ingestion can only write to non-main
+# branches, only `reviewers`/`admins` can merge into `main`, and the
+# query-gateway service actor can only read `main` via named queries. Both
+# per-entity-type scoping (content-agent blocked from EmailThread) AND
+# per-query scoping (content-agent blocked from list_email_threads even as
+# a *named* query) are enforced one layer up, in mcp-server/gateway.py +
+# policy.yaml -- see that file for why this can't live in Cedar today, and
+# why agent-facing tokens hold no Cedar-recognized identity at all anymore.
+rules:
+  - id: admins-read-write-anywhere
+    allow:
+      actors: { group: admins }
+      actions: [read, export, change]
+      branch_scope: any
+
+  - id: admins-schema-apply
+    allow:
+      actors: { group: admins }
+      actions: [schema_apply]
+      target_branch_scope: protected
+
+  - id: admins-branch-lifecycle
+    allow:
+      actors: { group: admins }
+      actions: [branch_create, branch_delete, branch_merge]
+      target_branch_scope: any
+
+  - id: admins-invoke-query
+    allow:
+      actors: { group: admins }
+      actions: [invoke_query]
+
+  # Ingestion runs never touch main directly: they may only fork/write a
+  # new (unprotected) review branch. Merging that branch into main requires
+  # a `reviewers` actor — this is the HITL gate.
+  - id: ingestion-create-review-branches
+    allow:
+      actors: { group: ingestion }
+      actions: [branch_create]
+      target_branch_scope: unprotected
+
+  - id: ingestion-load-onto-review-branches
+    allow:
+      actors: { group: ingestion }
+      actions: [read, change]
+      branch_scope: unprotected
+
+  # Reviewers can read any branch (to diff a proposal against main) and
+  # export for diffing, but may only merge INTO main and only delete
+  # (discard) unprotected review branches — never main itself.
+  - id: reviewers-read-anywhere
+    allow:
+      actors: { group: reviewers }
+      actions: [read, export]
+      branch_scope: any
+
+  - id: reviewers-merge-to-main
+    allow:
+      actors: { group: reviewers }
+      actions: [branch_merge]
+      target_branch_scope: protected
+
+  - id: reviewers-discard-review-branches
+    allow:
+      actors: { group: reviewers }
+      actions: [branch_delete]
+      target_branch_scope: unprotected
+
+  # The query-gateway service actor can only read `main` — approved, merged
+  # knowledge — and only ever via named invoke_query calls the gateway
+  # itself allowlists per role before it ever builds this request. It has
+  # no path to an in-review branch and (unlike the old agents-group grant)
+  # is never handed directly to agent-facing code, so there is no bearer
+  # token an agent process holds that Cedar would honor for anything.
+  - id: query-gateway-read-main-only
+    allow:
+      actors: { group: query_gateway }
+      actions: [read]
+      branch_scope: protected
+
+  - id: query-gateway-invoke-query
+    allow:
+      actors: { group: query_gateway }
+      actions: [invoke_query]

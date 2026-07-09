@@ -1,0 +1,4 @@
+-r pipeline/requirements.txt
+-r console/backend/requirements.txt
+-r mcp-server/requirements.txt
+-r agents/requirements.txt

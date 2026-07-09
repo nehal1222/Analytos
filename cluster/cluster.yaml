@@ -1,0 +1,31 @@
+version: 1
+metadata:
+  name: analytos-context-layer
+
+state:
+  backend: cluster
+  lock: true
+
+providers:
+  embedding:
+    default:
+      # `mock` is deterministic and needs no API key, so the whole POC loop
+      # (ingest -> review -> merge -> dashboard search -> agents) runs with
+      # zero external dependencies. Swap `kind` to `openai-compatible` (or
+      # `gemini`) + set OPENROUTER_API_KEY/GEMINI_API_KEY for real semantic
+      # search quality.
+      kind: mock
+
+graphs:
+  knowledge:
+    schema: knowledge.pg
+    embedding_provider: default
+    queries: queries/
+
+policies:
+  base:
+    file: base.policy.yaml
+    applies_to: [knowledge]
+  server:
+    file: server.policy.yaml
+    applies_to: [cluster]

@@ -1,0 +1,4 @@
+requests>=2.31
+pydantic>=2.6
+openai>=1.30
+python-slugify>=8.0

@@ -1,0 +1,70 @@
+# Query-gateway policy -- per-agent-role query allowlisting AND tool
+# curation, enforced in mcp-server/gateway.py (not just at MCP tool-listing
+# time, which was the earlier, incomplete version of this file).
+#
+# Why this file exists instead of relying on OmniGraph's Cedar policy alone:
+# reading crates/omnigraph-policy, Cedar's native grain here is per-graph /
+# per-branch (read, change, branch_merge, ...) -- there is no per-node-type
+# or per-stored-query scope yet (the server's own OpenAPI doc says so
+# verbatim: "Not Cedar-filtered per query yet, so it can list a query whose
+# invoke_query the caller lacks -- a known gap until per-query authorization
+# lands"), and its ad-hoc query endpoint only checks `read` on the branch --
+# so an actor with read access on main could submit hand-written .gq text
+# and read anything, including EmailThread, regardless of any stored-query
+# allowlist. So this file's `allowed_queries` used to only curate what an
+# MCP *tool* was offered (mcp_server.py), while the actor's real bearer
+# token still had full invoke_query + read(main) directly against
+# omnigraph-server -- meaning a leaked token bypassed this file entirely.
+#
+# Now: `actor` here is NOT an omnigraph-server Cedar actor at all (that
+# concept moved to the single act-query-gateway service actor in
+# cluster/base.policy.yaml). `gateway_api_key` is what an agent process
+# actually holds, and gateway.py is the only thing that ever talks to
+# omnigraph-server on an agent's behalf -- checking `allowed_queries` (and
+# refusing all ad-hoc query text, unconditionally) before it does.
+
+version: 1
+
+roles:
+  content-agent:
+    gateway_api_key: dev-gwkey-content-agent
+    description: >
+      Writes marketing/blog content from approved product facts. Must never
+      see EmailThread (internal correspondence) or Person/ICPSegment/Persona
+      (customer + prospecting data) -- none of those query names are listed
+      below, so there is no tool call, and no gateway-forwarded request,
+      that could return them.
+    allowed_queries:
+      - list_products
+      - get_product
+      - list_features_for_product
+      - list_all_features
+      - list_proof_points_for_product
+      - list_proof_points_for_feature
+      - list_all_proof_points
+      - list_decisions_for_product
+      - list_decisions
+      - search_products
+      - search_features
+      - search_proof_points
+      - search_decisions
+
+  gtm-agent:
+    gateway_api_key: dev-gwkey-gtm-agent
+    description: >
+      Builds prospecting briefs from ICP segments, personas, and proof
+      points. Can see products/proof points for grounding but never
+      EmailThread (internal customer correspondence).
+    allowed_queries:
+      - list_products
+      - get_product
+      - list_icp_segments
+      - get_icp_segment
+      - list_segments_for_product
+      - list_personas
+      - list_personas_for_segment
+      - list_proof_points_for_product
+      - list_all_proof_points
+      - search_products
+      - search_icp_segments
+      - search_proof_points

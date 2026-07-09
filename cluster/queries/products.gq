@@ -1,0 +1,85 @@
+// Product / Feature / ProofPoint / Decision reads — the read surface both the
+// dashboard and the content-agent MCP tools are built on.
+
+query list_products()
+  @description("All products, alphabetical.") {
+  match { $p: Product }
+  return { $p.slug as slug, $p.name as name, $p.category as category, $p.summary as summary, $p.source_doc as source_doc }
+  order { $p.name asc }
+}
+
+query get_product($slug: String)
+  @description("A single product by slug.") {
+  match { $p: Product { slug: $slug } }
+  return { $p.slug as slug, $p.name as name, $p.category as category, $p.summary as summary, $p.source_doc as source_doc }
+}
+
+query list_features_for_product($slug: String)
+  @description("Features belonging to a product.") {
+  match {
+    $p: Product { slug: $slug }
+    $p hasFeature $f
+  }
+  return { $f.slug as slug, $f.name as name, $f.description as description, $f.source_doc as source_doc }
+  order { $f.name asc }
+}
+
+query list_proof_points_for_product($slug: String)
+  @description("Product-level proof points (metrics).") {
+  match {
+    $p: Product { slug: $slug }
+    $p provenBy $pp
+  }
+  return { $pp.slug as slug, $pp.label as label, $pp.value as value, $pp.metric_type as metric_type, $pp.baseline as baseline, $pp.description as description, $pp.source_doc as source_doc }
+  order { $pp.label asc }
+}
+
+query list_proof_points_for_feature($slug: String)
+  @description("Feature-level proof points (metrics).") {
+  match {
+    $f: Feature { slug: $slug }
+    $f featureProvenBy $pp
+  }
+  return { $pp.slug as slug, $pp.label as label, $pp.value as value, $pp.metric_type as metric_type, $pp.baseline as baseline, $pp.description as description, $pp.source_doc as source_doc }
+  order { $pp.label asc }
+}
+
+query list_all_proof_points()
+  @description("Every proof point in the graph, for the dashboard entity browser.") {
+  match { $pp: ProofPoint }
+  return { $pp.slug as slug, $pp.label as label, $pp.value as value, $pp.metric_type as metric_type, $pp.baseline as baseline, $pp.description as description, $pp.source_doc as source_doc }
+  order { $pp.label asc }
+}
+
+query list_all_features()
+  @description("Every feature in the graph, for the dashboard entity browser.") {
+  match { $f: Feature }
+  return { $f.slug as slug, $f.name as name, $f.description as description, $f.source_doc as source_doc }
+  order { $f.name asc }
+}
+
+query list_decisions_for_product($slug: String)
+  @description("Decisions recorded about a product.") {
+  match {
+    $p: Product { slug: $slug }
+    $d decisionAbout $p
+  }
+  return { $d.slug as slug, $d.title as title, $d.description as description, $d.status as status, $d.decided_at as decided_at, $d.source_doc as source_doc }
+  order { $d.decided_at desc }
+}
+
+query list_decisions()
+  @description("All decisions, most recent first.") {
+  match { $d: Decision }
+  return { $d.slug as slug, $d.title as title, $d.description as description, $d.status as status, $d.decided_at as decided_at, $d.source_doc as source_doc }
+  order { $d.decided_at desc }
+}
+
+query decision_owners($slug: String)
+  @description("Person(s) who own/decided a given decision.") {
+  match {
+    $d: Decision { slug: $slug }
+    $d decidedBy $per
+  }
+  return { $per.slug as slug, $per.name as name, $per.role as role, $per.company as company }
+}

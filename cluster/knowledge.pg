@@ -1,0 +1,110 @@
+// Analytos Context Layer — knowledge graph schema
+//
+// Entities and edges follow the shape requested in the POC brief. Every
+// node carries `source_doc` + `ingest_run` for traceability back to the
+// seed document and ingestion run that produced it (evaluation criterion:
+// "traceability to graph nodes matters more than eloquence").
+//
+// Vector columns back the dashboard's hybrid (vector + BM25 + graph) search.
+// The POC ships with a `mock` embedding provider (see cluster.yaml) so the
+// whole loop runs with no external API key; swap in a real provider for
+// production-quality semantic search.
+
+node Product {
+    slug: String @key
+    name: String @index
+    category: String?
+    summary: String?
+    embedding: Vector(256)? @embed("summary")
+    source_doc: String? @index
+    ingest_run: String?
+}
+
+node Feature {
+    slug: String @key
+    name: String @index
+    description: String?
+    embedding: Vector(256)? @embed("description")
+    source_doc: String? @index
+    ingest_run: String?
+}
+
+node ProofPoint {
+    slug: String @key
+    label: String @index
+    value: String
+    metric_type: enum(percentage, ratio, duration, count, currency)
+    baseline: String?
+    description: String?
+    embedding: Vector(256)? @embed("description")
+    source_doc: String? @index
+    ingest_run: String?
+}
+
+node Persona {
+    slug: String @key
+    title: String @index
+    role_level: enum(economic_buyer, champion, user)
+    description: String?
+    source_doc: String? @index
+    ingest_run: String?
+}
+
+node ICPSegment {
+    slug: String @key
+    name: String @index
+    firmographics: String?
+    tech_signals: String?
+    trigger_signals: String?
+    competitor_angle: String?
+    embedding: Vector(256)? @embed("competitor_angle")
+    source_doc: String? @index
+    ingest_run: String?
+}
+
+node Person {
+    slug: String @key
+    name: String @index
+    email: String? @unique
+    company: String?
+    role: String?
+    source_doc: String? @index
+    ingest_run: String?
+}
+
+// Internal-only by construction: every email thread is `internal_only: true`.
+// Cedar/policy-gateway layer blocks the content-agent actor from this type
+// entirely (see mcp-server/policy.yaml).
+node EmailThread {
+    slug: String @key
+    thread_id: String @unique
+    subject: String @index
+    summary: String?
+    internal_only: Bool
+    occurred_at: Date?
+    source_doc: String? @index
+    ingest_run: String?
+}
+
+node Decision {
+    slug: String @key
+    title: String @index
+    description: String?
+    status: enum(proposed, approved, implemented)
+    decided_at: Date?
+    embedding: Vector(256)? @embed("description")
+    source_doc: String? @index
+    ingest_run: String?
+}
+
+edge HasFeature: Product -> Feature { @unique(src, dst) }
+edge ProvenBy: Product -> ProofPoint { @unique(src, dst) }
+edge FeatureProvenBy: Feature -> ProofPoint { @unique(src, dst) }
+edge Targets: Product -> ICPSegment { @unique(src, dst) }
+edge SegmentPersona: ICPSegment -> Persona { @unique(src, dst) }
+edge ParticipatedIn: Person -> EmailThread { @unique(src, dst) }
+edge ThreadAbout: EmailThread -> Product { @unique(src, dst) }
+edge DiscussedIn: ProofPoint -> EmailThread { @unique(src, dst) }
+edge DecisionDiscussedIn: Decision -> EmailThread { @unique(src, dst) }
+edge DecidedBy: Decision -> Person { @unique(src, dst) }
+edge DecisionAbout: Decision -> Product { @unique(src, dst) }

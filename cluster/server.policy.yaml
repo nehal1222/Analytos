@@ -1,0 +1,20 @@
+version: 1
+
+# Server-scoped bundle (applies_to: [cluster] in cluster.yaml). Cedar's
+# schema hard-separates server actions (only `graph_list`, bound to
+# Omnigraph::Server::"root") from per-graph actions (read/change/branch_*/
+# schema_apply/invoke_query, bound to Omnigraph::Graph::"<id>") -- a single
+# bundle can't mix both action families even when its `applies_to` names
+# both scopes (validated by the server: an error at boot, not just a lint
+# warning). Hence this file is separate from base.policy.yaml even though
+# both describe the `admins` group.
+
+groups:
+  admins:
+    - act-admin
+
+rules:
+  - id: admins-list-graphs
+    allow:
+      actors: { group: admins }
+      actions: [graph_list]

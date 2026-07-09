@@ -1,0 +1,48 @@
+// ICP segments / personas — the read surface the gtm-agent MCP tools use.
+
+query list_icp_segments()
+  @description("All ICP segments.") {
+  match { $s: ICPSegment }
+  return {
+    $s.slug as slug, $s.name as name, $s.firmographics as firmographics, $s.tech_signals as tech_signals,
+    $s.trigger_signals as trigger_signals, $s.competitor_angle as competitor_angle, $s.source_doc as source_doc
+  }
+  order { $s.name asc }
+}
+
+query get_icp_segment($slug: String)
+  @description("A single ICP segment by slug.") {
+  match { $s: ICPSegment { slug: $slug } }
+  return {
+    $s.slug as slug, $s.name as name, $s.firmographics as firmographics, $s.tech_signals as tech_signals,
+    $s.trigger_signals as trigger_signals, $s.competitor_angle as competitor_angle, $s.source_doc as source_doc
+  }
+}
+
+query list_segments_for_product($slug: String)
+  @description("ICP segments a given product targets.") {
+  match {
+    $p: Product { slug: $slug }
+    $p targets $s
+  }
+  return {
+    $s.slug as slug, $s.name as name, $s.firmographics as firmographics, $s.tech_signals as tech_signals,
+    $s.trigger_signals as trigger_signals, $s.competitor_angle as competitor_angle
+  }
+}
+
+query list_personas()
+  @description("All personas.") {
+  match { $per: Persona }
+  return { $per.slug as slug, $per.title as title, $per.role_level as role_level, $per.description as description }
+  order { $per.title asc }
+}
+
+query list_personas_for_segment($slug: String)
+  @description("Personas targeted within an ICP segment.") {
+  match {
+    $s: ICPSegment { slug: $slug }
+    $s segmentPersona $per
+  }
+  return { $per.slug as slug, $per.title as title, $per.role_level as role_level, $per.description as description }
+}

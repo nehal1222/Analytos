@@ -1,0 +1,33 @@
+// EmailThread reads. These stored queries are used by the dashboard/review
+// service only. They are deliberately NEVER registered in the MCP gateway's
+// content-agent or gtm-agent tool catalogs (see mcp-server/policy.yaml) —
+// that is the mechanism that blocks agents from internal email content.
+
+query list_email_threads()
+  @description("Internal-only email threads.") {
+  match { $t: EmailThread }
+  return { $t.slug as slug, $t.thread_id as thread_id, $t.subject as subject, $t.summary as summary, $t.internal_only as internal_only, $t.occurred_at as occurred_at, $t.source_doc as source_doc }
+  order { $t.occurred_at desc }
+}
+
+query get_email_thread($slug: String)
+  @description("A single email thread by slug.") {
+  match { $t: EmailThread { slug: $slug } }
+  return { $t.slug as slug, $t.thread_id as thread_id, $t.subject as subject, $t.summary as summary, $t.internal_only as internal_only, $t.occurred_at as occurred_at, $t.source_doc as source_doc }
+}
+
+query list_participants_for_thread($slug: String)
+  @description("People who participated in an email thread.") {
+  match {
+    $t: EmailThread { slug: $slug }
+    $per participatedIn $t
+  }
+  return { $per.slug as slug, $per.name as name, $per.email as email, $per.company as company, $per.role as role }
+}
+
+query list_people()
+  @description("All people recorded in the graph.") {
+  match { $per: Person }
+  return { $per.slug as slug, $per.name as name, $per.email as email, $per.company as company, $per.role as role }
+  order { $per.name asc }
+}

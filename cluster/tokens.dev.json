@@ -1,0 +1,10 @@
+{
+  "act-admin": "dev-token-admin",
+  "act-ingestion-pipeline": "dev-token-ingestion",
+  "act-reviewer-dana": "dev-token-reviewer-dana",
+  "act-reviewer-priya": "dev-token-reviewer-priya",
+  "act-reviewer-ashok": "dev-token-reviewer-ashok",
+  "act-reviewer-santosh": "dev-token-reviewer-santosh",
+  "act-reviewer-nehal": "dev-token-reviewer-nehal",
+  "act-query-gateway": "dev-token-query-gateway"
+}

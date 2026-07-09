@@ -1,0 +1,19 @@
+.venv/
+node_modules/
+dist/
+__pycache__/
+*.pyc
+
+# console auth store -- real password hashes and the dev session-signing
+# secret must never be committed (see console/backend/auth.py)
+console/backend/users.db
+console/backend/session_secret.key
+
+# ingestion run manifests are local working state, not source
+pipeline/runs/
+
+# cluster runtime state (graph data, applied-state ledger) -- regenerate
+# via `omnigraph cluster apply`, don't version the data itself
+cluster/graphs/
+cluster/__cluster/
+cluster/*.log
