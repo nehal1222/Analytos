@@ -25,10 +25,12 @@ queries only -- the same thing the tool catalog below already exposes.
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 import yaml
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 import tools  # noqa: E402
 
@@ -47,7 +49,30 @@ def build_server(role: str, host: str = "127.0.0.1", port: int = 8000) -> FastMC
 
     tools.CLIENT = tools.GatewayClient(role_config["gateway_api_key"])
 
-    mcp = FastMCP(f"analytos-context-{role}", host=host, port=port)
+    # The MCP SDK's DNS-rebinding protection defaults allowed_hosts to an
+    # empty list -- i.e. every Host header rejected (421) -- when serving
+    # over streamable-http. Behind a reverse proxy (Caddy, here) the
+    # request's real Host header is the public hostname, not 127.0.0.1, so
+    # that has to be explicitly allowlisted per deployment via env var.
+    # Irrelevant for stdio (Claude Desktop/Code spawns this locally; no
+    # Host header involved at all), hence not gated on transport here.
+    # allowed_hosts matches the bare Host header (host[:port]); Origin (a
+    # browser-only header a native MCP client typically won't even send)
+    # needs the scheme, so derived separately rather than reusing the same
+    # literal list for both.
+    allowed_hosts = [h.strip() for h in os.environ.get("MCP_ALLOWED_HOSTS", "").split(",") if h.strip()]
+    transport_security = (
+        TransportSecuritySettings(
+            allowed_hosts=allowed_hosts,
+            allowed_origins=[f"https://{h}" for h in allowed_hosts],
+        )
+        if allowed_hosts
+        else None
+    )
+
+    mcp = FastMCP(
+        f"analytos-context-{role}", host=host, port=port, transport_security=transport_security
+    )
     for tool_name in role_config["allowed_queries"]:
         fn = tools.TOOL_REGISTRY[tool_name]
         mcp.add_tool(fn, name=tool_name, description=(fn.__doc__ or "").strip())

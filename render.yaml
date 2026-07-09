@@ -37,3 +37,10 @@ services:
         value: "none" # required: frontend (Netlify) and backend (Render) are different domains
       - key: SESSION_SECRET
         generateValue: true
+      - key: MCP_ALLOWED_HOSTS
+        sync: false # fill in: this service's own Render hostname, e.g. analytos.onrender.com
+        # Required for the MCP endpoints specifically -- the MCP SDK's
+        # DNS-rebinding protection rejects every Host header (421
+        # Misdirected Request) unless explicitly allowlisted, and behind
+        # Caddy the request's real Host header is this public hostname,
+        # not 127.0.0.1.
