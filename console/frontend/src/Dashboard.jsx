@@ -156,6 +156,12 @@ function EntityList({ section }) {
           <div className="muted">
             {item.description || item.summary || item.value || item.competitor_angle || item.category}
           </div>
+          {item.metric_type && (
+            <div className="provenance">
+              metric_type: {item.metric_type}
+              {item.baseline ? ` · baseline: ${item.baseline}` : ""}
+            </div>
+          )}
           {item.source_doc && <div className="provenance">source: {item.source_doc}</div>}
         </li>
       ))}
