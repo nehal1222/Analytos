@@ -347,6 +347,7 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
   margin-top: 8px;
 }
 .login-form button:disabled { opacity: 0.6; cursor: default; }
+.login-switch { text-align: center; margin: 4px 0 0; }
 
 /* ---- Home / landing page ------------------------------------------- */
 

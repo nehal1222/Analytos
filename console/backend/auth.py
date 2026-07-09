@@ -120,6 +120,12 @@ def create_user(username: str, password: str, display_name: str, role: str, acto
         )
 
 
+def user_exists(username: str) -> bool:
+    with _db() as conn:
+        row = conn.execute("SELECT 1 FROM users WHERE username = ?", (username,)).fetchone()
+    return row is not None
+
+
 def list_users() -> list[User]:
     with _db() as conn:
         rows = conn.execute("SELECT username, display_name, role, actor_id FROM users ORDER BY username").fetchall()

@@ -29,6 +29,11 @@ async function req(path, options) {
 export const api = {
   login: (username, password) =>
     req("/auth/login", { method: "POST", body: JSON.stringify({ username, password }) }),
+  signup: (username, password, displayName) =>
+    req("/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ username, password, display_name: displayName }),
+    }),
   logout: () => req("/auth/logout", { method: "POST" }),
   me: () => req("/auth/me"),
 

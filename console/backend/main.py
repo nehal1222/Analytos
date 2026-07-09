@@ -92,6 +92,44 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class SignupRequest(BaseModel):
+    username: str
+    password: str
+    display_name: str
+
+
+@app.post("/api/auth/signup")
+def signup(body: SignupRequest, response: Response):
+    # Self-service is scoped to "viewer" (read-only) accounts only --
+    # "reviewer" needs a real Cedar actor wired into cluster/base.policy.yaml
+    # and tokens.dev.json, which a signup form can't safely provision on
+    # its own; that stays a deliberate CLI action (manage_users.py). This
+    # still gets a recruiter/evaluator into the dashboard immediately,
+    # without a round-trip to whoever runs the CLI.
+    username = body.username.strip().lower()
+    if not username or not username.replace("-", "").replace("_", "").isalnum():
+        raise HTTPException(400, "username must be alphanumeric (- and _ allowed)")
+    if len(body.password) < 8:
+        raise HTTPException(400, "password must be at least 8 characters")
+    if not body.display_name.strip():
+        raise HTTPException(400, "display name is required")
+    if auth.user_exists(username):
+        raise HTTPException(409, f"username '{username}' is already taken")
+
+    auth.create_user(username, body.password, body.display_name.strip(), "viewer", None)
+    user = auth.verify_password(username, body.password)
+    token = auth.create_session_token(user)
+    response.set_cookie(
+        auth.SESSION_COOKIE,
+        token,
+        httponly=True,
+        samesite=COOKIE_SAMESITE,
+        secure=COOKIE_SECURE,
+        max_age=auth.SESSION_TTL_SECONDS,
+    )
+    return {"username": user.username, "display_name": user.display_name, "role": user.role}
+
+
 @app.post("/api/auth/login")
 def login(body: LoginRequest, response: Response):
     user = auth.verify_password(body.username, body.password)
