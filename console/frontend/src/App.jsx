@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Home from "./Home.jsx";
+import Tutorial from "./Tutorial.jsx";
 import Dashboard from "./Dashboard.jsx";
 import Review from "./Review.jsx";
 import Changes from "./Changes.jsx";
@@ -8,6 +9,7 @@ import { api, AuthError } from "./api.js";
 
 const TABS = [
   { key: "home", label: "Home", Component: Home },
+  { key: "tutorial", label: "Tutorial", Component: Tutorial },
   { key: "dashboard", label: "Dashboard", Component: Dashboard },
   { key: "changes", label: "Recent Changes", Component: Changes },
   { key: "review", label: "Review Queue", Component: Review },

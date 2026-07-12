@@ -141,6 +141,7 @@ export default function Home({ onNavigate }) {
         <div className="hero-actions">
           <button onClick={() => onNavigate("dashboard")}>Browse the graph</button>
           <button className="secondary" onClick={() => onNavigate("review")}>Open Review Queue</button>
+          <button className="secondary" onClick={() => onNavigate("tutorial")}>New here? View the tutorial</button>
         </div>
       </section>
 

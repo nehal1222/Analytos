@@ -437,6 +437,108 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
   .flow-arrow { transform: rotate(90deg); }
 }
 
+/* Tutorial "booklet" -- a single flippable page per topic. Animation is
+   driven by remounting the page div on a new React `key` (see
+   Tutorial.jsx); the browser replays the keyframe animation on every
+   mount for free, no animation library or manual trigger logic needed. */
+.tutorial { display: flex; flex-direction: column; align-items: center; padding: 12px 0 32px; }
+
+.booklet {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  min-height: 300px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+  padding: 40px 44px;
+  perspective: 1600px;
+  overflow: hidden;
+}
+.booklet-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent);
+}
+
+.booklet-page { transform-origin: left center; backface-visibility: hidden; }
+.booklet-page-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--panel-hover);
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+.booklet-page-icon svg { width: 28px; height: 28px; }
+.booklet-kicker {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.booklet-page h2 { font-size: 22px; margin: 0 0 14px; }
+.booklet-page p { font-size: 15px; line-height: 1.7; color: var(--text); margin: 0; max-width: 520px; }
+
+@keyframes pageInNext {
+  from { transform: rotateY(-35deg) translateX(-16px); opacity: 0; }
+  to { transform: rotateY(0) translateX(0); opacity: 1; }
+}
+@keyframes pageInPrev {
+  from { transform: rotateY(35deg) translateX(16px); opacity: 0; }
+  to { transform: rotateY(0) translateX(0); opacity: 1; }
+}
+.booklet-page.anim-next { animation: pageInNext 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.booklet-page.anim-prev { animation: pageInPrev 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+
+.booklet-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  max-width: 640px;
+  margin-top: 20px;
+}
+.booklet-controls button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.booklet-controls button.secondary { background: transparent; color: var(--accent); }
+.booklet-controls button:disabled { opacity: 0.35; cursor: default; }
+
+.booklet-dots { display: flex; gap: 8px; }
+.booklet-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: none;
+  background: var(--border);
+  padding: 0;
+  cursor: pointer;
+}
+.booklet-dot.active { background: var(--accent); width: 22px; border-radius: 5px; transition: width 0.25s ease; }
+
+@media (max-width: 720px) {
+  .booklet { padding: 28px 24px; }
+  .booklet-controls { flex-wrap: wrap; }
+}
+
 /* ---- Submit-a-document panel (Review Queue) ------------------------- */
 
 .submit-doc-toggle { display: block; margin-bottom: 16px; font-size: 13px; }
