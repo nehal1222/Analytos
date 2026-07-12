@@ -19,7 +19,10 @@
   --border: #2c2c2c;           /* gridline (hairline), dark (derived) */
   --text: #ffffff;             /* primary ink, dark */
   --muted: #a3a3a3;            /* secondary ink, dark (derived) */
-  --accent: #659287;           /* brand accent (green) -- same value as light mode */
+  --accent: #425F58;           /* brand accent (green), dark step -- darker
+                                   than light mode's #659287 so it reads
+                                   richer against pure black instead of
+                                   washed out */
   --accent-pink: #e05780;      /* same value as light mode */
   --accent-orange: #e8873d;    /* same value as light mode */
   --green: #0ca30c;           /* status: good -- fixed, not themed */
@@ -86,7 +89,7 @@
   --border: #2c2c2c;
   --text: #ffffff;
   --muted: #a3a3a3;
-  --accent: #659287;
+  --accent: #425F58;
   --accent-pink: #e05780;
   --accent-orange: #e8873d;
   --green-text: #0ca30c;
