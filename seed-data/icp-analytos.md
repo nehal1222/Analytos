@@ -1,6 +1,6 @@
-# Analytos — Ideal Customer Profile (ICP)
+# GroundTruth — Ideal Customer Profile (ICP)
 
-This document defines the ICP segments and personas for both Analytos
+This document defines the ICP segments and personas for both GroundTruth
 products, Stockly and Inspectly, and the market signals GTM should watch for.
 
 ## Segment: Mid-Market Retail & E-commerce (Stockly)

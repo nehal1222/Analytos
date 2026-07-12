@@ -38,7 +38,7 @@ import auth  # noqa: E402
 import diff as diff_mod  # noqa: E402
 from omnigraph_client import OmniGraphError, client_for  # noqa: E402
 
-app = FastAPI(title="Analytos Context Layer Console")
+app = FastAPI(title="GroundTruth Context Layer Console")
 
 # Cookie-based sessions require `allow_credentials=True`, which the CORS
 # spec forbids pairing with a wildcard origin -- browsers will silently
@@ -97,7 +97,7 @@ def root():
     # dev server / static build) -- point anyone hitting it directly at
     # something useful instead of a bare 404.
     return {
-        "service": "Analytos Context Layer Console API",
+        "service": "GroundTruth Context Layer Console API",
         "docs": "/docs",
         "dashboard": "http://127.0.0.1:5173",
     }

@@ -38,7 +38,7 @@ export default function Login({ onLogin }) {
   return (
     <div className="login-screen">
       <form className="login-form" onSubmit={submit}>
-        <h1>Analytos Context Layer</h1>
+        <h1>GroundTruth Context Layer</h1>
         <p className="muted">
           {mode === "login" ? "Sign in to continue." : "Create a read-only viewer account."}
         </p>

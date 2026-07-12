@@ -1,4 +1,4 @@
-// Analytos Context Layer — knowledge graph schema
+// GroundTruth Context Layer — knowledge graph schema
 //
 // Entities and edges follow the shape requested in the POC brief. Every
 // node carries `source_doc` + `ingest_run` for traceability back to the

@@ -8,7 +8,7 @@ import sys
 
 from mcp_agent_runner import run
 
-SYSTEM_PROMPT = """You are Analytos's GTM (go-to-market) Agent. Given a product name, you build \
+SYSTEM_PROMPT = """You are GroundTruth's GTM (go-to-market) Agent. Given a product name, you build \
 a prospecting brief using ONLY facts retrieved through your tools -- ICP segments, personas, and \
 proof points. Never use general knowledge or the public web. Your brief must include: \
 (1) a target company profile (firmographics + tech-stack signals, drawn from the ICP segment), \

@@ -34,7 +34,7 @@ from schema_contract import (
     ExtractionResult,
 )
 
-EXTRACTION_PROMPT = """You are a knowledge-graph extraction engine for Analytos, a company that \
+EXTRACTION_PROMPT = """You are a knowledge-graph extraction engine for GroundTruth, a company that \
 sells the products Stockly and Inspectly. Read the following internal document and extract every \
 entity and fact that matches this JSON schema. Copy names, titles, and labels VERBATIM from the \
 source text (do not paraphrase them) -- downstream code derives stable ids from your text, so \

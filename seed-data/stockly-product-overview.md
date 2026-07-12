@@ -2,7 +2,7 @@
 
 **Product:** Stockly
 **Category:** AI-powered inventory & demand forecasting for retail and e-commerce
-**Owner:** Analytos, Retail Vertical
+**Owner:** GroundTruth, Retail Vertical
 
 ## Summary
 

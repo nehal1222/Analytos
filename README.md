@@ -1,6 +1,6 @@
-# Analytos Context Layer — Omnigraph POC
+# GroundTruth Context Layer — Omnigraph POC
 
-A governed, single-source-of-truth knowledge layer for Analytos, built on
+A governed, single-source-of-truth knowledge layer for GroundTruth, built on
 the open-source [Omnigraph](https://github.com/ModernRelay/omnigraph) engine
 (checked out as a sibling directory, `../omnigraph`). Demonstrates the full
 loop: **ingest → LLM extract → human review (HITL) → merge to main → serve

@@ -178,9 +178,9 @@ export default function Home({ onNavigate }) {
   return (
     <div className="home">
       <section className="hero">
-        <h1>Analytos Context Layer</h1>
+        <h1>GroundTruth Context Layer</h1>
         <p className="hero-tagline">
-          One governed, single-source-of-truth knowledge graph for Analytos -- humans read it through
+          One governed, single-source-of-truth knowledge graph for GroundTruth -- humans read it through
           this dashboard, agents read it through MCP, and nothing reaches either one without a human
           approving it first.
         </p>

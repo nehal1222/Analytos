@@ -43,7 +43,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Analytos Context Layer</h1>
+        <h1>GroundTruth Context Layer</h1>
         <nav className="tabs">
           {TABS.map((t) => (
             <button key={t.key} className={t.key === tab ? "active" : ""} onClick={() => setTab(t.key)}>

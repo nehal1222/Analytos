@@ -1,8 +1,8 @@
 # Email Thread: Stockly Pilot — Northfield Outfitters Expansion
 
 **Thread:** stockly-pilot-northfield-2026
-**Participants:** Dana Reyes (Analytos, Head of Customer Success),
-Priya Nandakumar (Analytos, VP Product), Carl Whitfield (Northfield
+**Participants:** Dana Reyes (GroundTruth, Head of Customer Success),
+Priya Nandakumar (GroundTruth, VP Product), Carl Whitfield (Northfield
 Outfitters, VP Supply Chain)
 **Status:** Internal + customer thread — contains customer name, treat as
 internal-only.

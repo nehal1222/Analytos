@@ -2,7 +2,7 @@
 
 **Product:** Inspectly
 **Category:** AI visual inspection and compliance documentation for regulated manufacturers
-**Owner:** Analytos, Regulated Manufacturing Vertical
+**Owner:** GroundTruth, Regulated Manufacturing Vertical
 
 ## Summary
 

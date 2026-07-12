@@ -1,8 +1,8 @@
 # Email Thread: Inspectly Pilot — Meridian MedTech FDA Audit Prep
 
 **Thread:** inspectly-pilot-meridian-2026
-**Participants:** Jonas Fielder (Analytos, Solutions Engineer), Dr. Anita
-Kessler (Meridian MedTech, VP Quality Assurance), Priya Nandakumar (Analytos,
+**Participants:** Jonas Fielder (GroundTruth, Solutions Engineer), Dr. Anita
+Kessler (Meridian MedTech, VP Quality Assurance), Priya Nandakumar (GroundTruth,
 VP Product)
 **Status:** Internal + customer thread — contains customer name and
 regulatory specifics, internal-only, must not be surfaced externally.

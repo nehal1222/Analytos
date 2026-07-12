@@ -42,7 +42,7 @@ from omnigraph_client import OmniGraphError, client_for  # noqa: E402
 POLICY_PATH = Path(__file__).resolve().parent / "policy.yaml"
 GATEWAY_ACTOR = os.environ.get("QUERY_GATEWAY_ACTOR", "act-query-gateway")
 
-app = FastAPI(title="Analytos Query Gateway")
+app = FastAPI(title="GroundTruth Query Gateway")
 _client = None
 
 
