@@ -1,15 +1,18 @@
-/* Validated palette (dataviz skill reference instance) -- status colors
-   are fixed across themes by design (never themed, kept distinct from the
-   accent hue so a badge never impersonates an interactive element);
-   surfaces/ink are the dark-mode band since dark is this app's default. */
+/* Brand palette (user-supplied): #659287 / #88BDA4 / #B1D3B9 / #E6F2DD --
+   a single green family instead of a blue accent, so surfaces/ink are
+   derived (darker for the dark band, lighter for the light band) while
+   all four given hexes appear directly at least once per mode. Status
+   colors stay fixed across themes by design (never themed, kept visually
+   distinct from the accent so a badge never impersonates an interactive
+   element) -- untouched by this palette swap. */
 :root {
-  --bg: #0d0d0d;              /* page plane, dark */
-  --panel: #1a1a19;           /* chart/panel surface, dark */
-  --panel-hover: #242422;
-  --border: #2c2c2a;          /* gridline (hairline), dark */
-  --text: #ffffff;            /* primary ink, dark */
-  --muted: #c3c2b7;           /* secondary ink, dark */
-  --accent: #3987e5;          /* categorical slot 1 (blue), dark step */
+  --bg: #10201b;               /* page plane, dark (derived) */
+  --panel: #182a24;            /* chart/panel surface, dark (derived) */
+  --panel-hover: #21362e;
+  --border: #33493f;           /* gridline (hairline), dark (derived) */
+  --text: #E6F2DD;             /* primary ink, dark -- lightest brand step */
+  --muted: #9fc2b1;            /* secondary ink, dark (derived) */
+  --accent: #88BDA4;           /* brand accent, dark step */
   --green: #0ca30c;           /* status: good -- fixed, not themed */
   --green-text: #0ca30c;      /* "delta up / success" text, dark step */
   --amber: #fab219;           /* status: warning -- fixed, not themed */
@@ -20,13 +23,15 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #f9f9f7;             /* page plane, light */
-    --panel: #fcfcfb;          /* chart/panel surface, light */
-    --panel-hover: #f0efec;
-    --border: #e1e0d9;         /* gridline (hairline), light */
-    --text: #0b0b0b;           /* primary ink, light */
-    --muted: #52514e;          /* secondary ink, light */
-    --accent: #2a78d6;         /* categorical slot 1 (blue), light step */
+    --bg: #E6F2DD;             /* page plane, light -- lightest brand step */
+    --panel: #ffffff;          /* chart/panel surface, light (derived) */
+    --panel-hover: #dbeed0;
+    --border: #B1D3B9;         /* gridline (hairline), light -- brand step */
+    --text: #16241f;           /* primary ink, light (derived) */
+    --muted: #4d6b5e;          /* secondary ink, light (derived) */
+    --accent: #659287;         /* brand accent, light step (darkest/most
+                                   saturated brand color -- kept dark enough
+                                   that white button text stays legible) */
     --green-text: #006300;     /* darker "success text" step -- the plain
                                    status green (#0ca30c) is only 3.27:1 on
                                    the light surface, borderline for small
@@ -188,7 +193,7 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
 .badge.update, .badge.pending, .badge.pending_review { background: rgba(250,178,25,0.18); color: var(--amber-text); }
 .badge.unchanged, .badge.reaffirmed { background: rgba(137,135,129,0.15); color: var(--muted); }
 .badge.rejected { background: rgba(208,59,59,0.15); color: var(--red); }
-.badge.merge-tag { background: rgba(57,135,229,0.15); color: var(--accent); }
+.badge.merge-tag { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
 
 .commit-list { list-style: none; padding: 0; }
 .commit-list li.commit {
