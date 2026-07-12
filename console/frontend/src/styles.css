@@ -1,18 +1,20 @@
-/* Brand palette (user-supplied): #659287 / #88BDA4 / #B1D3B9 / #E6F2DD --
-   a single green family instead of a blue accent, so surfaces/ink are
-   derived (darker for the dark band, lighter for the light band) while
-   all four given hexes appear directly at least once per mode. Status
-   colors stay fixed across themes by design (never themed, kept visually
-   distinct from the accent so a badge never impersonates an interactive
-   element) -- untouched by this palette swap. */
+/* Brand palette: light mode is the user-supplied green family (#659287 /
+   #88BDA4 / #B1D3B9 / #E6F2DD); dark mode is a separate user-supplied
+   warm brown/gold family (#1C0A00 / #361500 / #603601 / #CC9544) --
+   these are two distinct palettes for the two themes, not one hue pushed
+   both directions. Accent stays the green (#88BDA4) in both modes so
+   interactive elements read consistently across the theme swap and pop
+   against the warm dark surfaces. Status colors stay fixed across themes
+   by design (never themed, kept visually distinct from the accent so a
+   badge never impersonates an interactive element) -- untouched here. */
 :root {
-  --bg: #10201b;               /* page plane, dark (derived) */
-  --panel: #182a24;            /* chart/panel surface, dark (derived) */
-  --panel-hover: #21362e;
-  --border: #33493f;           /* gridline (hairline), dark (derived) */
-  --text: #E6F2DD;             /* primary ink, dark -- lightest brand step */
-  --muted: #9fc2b1;            /* secondary ink, dark (derived) */
-  --accent: #88BDA4;           /* brand accent, dark step */
+  --bg: #1C0A00;               /* page plane, dark -- brand step (darkest) */
+  --panel: #361500;            /* chart/panel surface, dark -- brand step */
+  --panel-hover: #4b2600;      /* derived, between panel and border */
+  --border: #603601;           /* gridline (hairline), dark -- brand step */
+  --text: #CC9544;             /* primary ink, dark -- brand step (lightest/brightest) */
+  --muted: #a3813f;            /* secondary ink, dark (derived, dimmer gold) */
+  --accent: #88BDA4;           /* brand accent (green family), dark step */
   --green: #0ca30c;           /* status: good -- fixed, not themed */
   --green-text: #0ca30c;      /* "delta up / success" text, dark step */
   --amber: #fab219;           /* status: warning -- fixed, not themed */
