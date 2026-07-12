@@ -1,12 +1,11 @@
-/* Brand palette: light mode is the user-supplied green family (#659287 /
-   #88BDA4 / #B1D3B9 / #E6F2DD) plus white bg + pink/orange accents; dark
-   mode is a separate user-supplied warm brown/gold family (#1C0A00 /
-   #361500 / #603601 / #CC9544) -- two distinct palettes per theme, not
-   one hue pushed both directions. Accent stays the green (#88BDA4/
-   #659287) in both modes so interactive elements read consistently.
-   Status colors stay fixed across themes by design (never themed, kept
-   visually distinct from the accent so a badge never impersonates an
-   interactive element) -- untouched here.
+/* Brand palette: light mode is white bg + the user-supplied green/pink/
+   orange accents (#659287 / #e05780 / #e8873d); dark mode is pure black
+   plus the SAME accent colors (not a separate darkened family) -- one
+   consistent accent identity across both themes, only the neutral
+   surfaces (bg/panel/border/text) flip. Status colors stay fixed across
+   themes by design (never themed, kept visually distinct from the accent
+   so a badge never impersonates an interactive element) -- untouched
+   here.
 
    Theme selection: an explicit `data-theme` attribute on <html> (set by
    the toggle in App.jsx, persisted to localStorage) always wins over the
@@ -14,15 +13,15 @@
    colors because my OS is in dark mode" can't happen once a user has
    picked a theme in-app. App.jsx defaults to "light" on first load. */
 :root {
-  --bg: #1C0A00;               /* page plane, dark -- brand step (darkest) */
-  --panel: #361500;            /* chart/panel surface, dark -- brand step */
-  --panel-hover: #4b2600;      /* derived, between panel and border */
-  --border: #603601;           /* gridline (hairline), dark -- brand step */
-  --text: #CC9544;             /* primary ink, dark -- brand step (lightest/brightest) */
-  --muted: #a3813f;            /* secondary ink, dark (derived, dimmer gold) */
-  --accent: #88BDA4;           /* brand accent (green family), dark step */
-  --accent-pink: #a4623f;      /* decorative 2nd tone, dark -- muted terracotta to fit the warm palette */
-  --accent-orange: #CC9544;    /* decorative 3rd tone, dark -- reuses the brand gold */
+  --bg: #000000;               /* page plane, dark -- pure black per request */
+  --panel: #141414;            /* chart/panel surface, dark (derived) */
+  --panel-hover: #1e1e1e;
+  --border: #2c2c2c;           /* gridline (hairline), dark (derived) */
+  --text: #ffffff;             /* primary ink, dark */
+  --muted: #a3a3a3;            /* secondary ink, dark (derived) */
+  --accent: #659287;           /* brand accent (green) -- same value as light mode */
+  --accent-pink: #e05780;      /* same value as light mode */
+  --accent-orange: #e8873d;    /* same value as light mode */
   --green: #0ca30c;           /* status: good -- fixed, not themed */
   --green-text: #0ca30c;      /* "delta up / success" text, dark step */
   --amber: #fab219;           /* status: warning -- fixed, not themed */
@@ -81,15 +80,15 @@
 }
 
 :root[data-theme="dark"] {
-  --bg: #1C0A00;
-  --panel: #361500;
-  --panel-hover: #4b2600;
-  --border: #603601;
-  --text: #CC9544;
-  --muted: #a3813f;
-  --accent: #88BDA4;
-  --accent-pink: #a4623f;
-  --accent-orange: #CC9544;
+  --bg: #000000;
+  --panel: #141414;
+  --panel-hover: #1e1e1e;
+  --border: #2c2c2c;
+  --text: #ffffff;
+  --muted: #a3a3a3;
+  --accent: #659287;
+  --accent-pink: #e05780;
+  --accent-orange: #e8873d;
   --green-text: #0ca30c;
   --amber-text: #fab219;
 }
