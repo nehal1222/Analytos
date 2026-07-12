@@ -19,6 +19,13 @@ export default function App() {
   const [tab, setTab] = useState("home");
   const [user, setUser] = useState(null);
   const [checkingSession, setCheckingSession] = useState(true);
+  // The actual color values live in CSS (styles.css `:root[data-theme]`) --
+  // this state only drives the toggle button's own label/icon and stays in
+  // sync with the attribute an inline script in index.html already set
+  // before first paint (so there's no flash of the wrong theme).
+  const [theme, setTheme] = useState(
+    () => document.documentElement.getAttribute("data-theme") || "light"
+  );
 
   useEffect(() => {
     api
@@ -29,6 +36,13 @@ export default function App() {
       })
       .finally(() => setCheckingSession(false));
   }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+  };
 
   const logout = async () => {
     await api.logout().catch(() => {});
@@ -52,6 +66,9 @@ export default function App() {
           ))}
         </nav>
         <div className="session-info">
+          <button type="button" className="theme-toggle" onClick={toggleTheme} title="Toggle light/dark theme">
+            {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+          </button>
           <span>
             {user.display_name} <span className="muted">({user.role})</span>
           </span>

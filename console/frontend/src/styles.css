@@ -1,12 +1,18 @@
 /* Brand palette: light mode is the user-supplied green family (#659287 /
-   #88BDA4 / #B1D3B9 / #E6F2DD); dark mode is a separate user-supplied
-   warm brown/gold family (#1C0A00 / #361500 / #603601 / #CC9544) --
-   these are two distinct palettes for the two themes, not one hue pushed
-   both directions. Accent stays the green (#88BDA4) in both modes so
-   interactive elements read consistently across the theme swap and pop
-   against the warm dark surfaces. Status colors stay fixed across themes
-   by design (never themed, kept visually distinct from the accent so a
-   badge never impersonates an interactive element) -- untouched here. */
+   #88BDA4 / #B1D3B9 / #E6F2DD) plus white bg + pink/orange accents; dark
+   mode is a separate user-supplied warm brown/gold family (#1C0A00 /
+   #361500 / #603601 / #CC9544) -- two distinct palettes per theme, not
+   one hue pushed both directions. Accent stays the green (#88BDA4/
+   #659287) in both modes so interactive elements read consistently.
+   Status colors stay fixed across themes by design (never themed, kept
+   visually distinct from the accent so a badge never impersonates an
+   interactive element) -- untouched here.
+
+   Theme selection: an explicit `data-theme` attribute on <html> (set by
+   the toggle in App.jsx, persisted to localStorage) always wins over the
+   OS-level prefers-color-scheme fallback below it -- so "I can't see the
+   colors because my OS is in dark mode" can't happen once a user has
+   picked a theme in-app. App.jsx defaults to "light" on first load. */
 :root {
   --bg: #1C0A00;               /* page plane, dark -- brand step (darkest) */
   --panel: #361500;            /* chart/panel surface, dark -- brand step */
@@ -26,35 +32,66 @@
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
-    --bg: #ffffff;             /* page plane, light -- plain white per request */
-    --panel: #f7f7f5;          /* chart/panel surface, light -- subtle off-white
-                                   so cards still read as distinct from a pure-
-                                   white page */
+  /* Only applies before App.jsx has set an explicit data-theme (first
+     paint / JS disabled) -- see :root[data-theme] below for the version
+     that always wins once a theme is chosen. */
+  :root:not([data-theme]) {
+    --bg: #ffffff;
+    --panel: #f7f7f5;
     --panel-hover: #eeeeeb;
-    --border: #e2e2de;         /* gridline (hairline), light -- kept neutral so
-                                   it doesn't compete with the accent colors */
-    --text: #141414;           /* primary ink, light (derived) */
-    --muted: #5c5c58;          /* secondary ink, light (derived) */
-    --accent: #659287;         /* brand accent, light step -- stays the green
-                                   for buttons/links (kept as the one
-                                   consistent interactive color rather than
-                                   cycling all three, to avoid a "rainbow
-                                   buttons" look) */
-    --accent-pink: #e05780;    /* decorative 2nd tone, light */
-    --accent-orange: #e8873d;  /* decorative 3rd tone, light */
-    --green-text: #006300;     /* darker "success text" step -- the plain
-                                   status green (#0ca30c) is only 3.27:1 on
-                                   the light surface, borderline for small
-                                   text; this step is for exactly that use */
-    --amber-text: #8a5a00;     /* plain warning (#fab219) is only 1.79:1 on
-                                   light -- close to illegible as text, not
-                                   just borderline. Badges here use the
-                                   status color AS the label text itself
-                                   (not a decorative dot next to a neutral
-                                   label), so this darker step is used
-                                   specifically for that case. */
+    --border: #e2e2de;
+    --text: #141414;
+    --muted: #5c5c58;
+    --accent: #659287;
+    --accent-pink: #e05780;
+    --accent-orange: #e8873d;
+    --green-text: #006300;
+    --amber-text: #8a5a00;
   }
+}
+
+:root[data-theme="light"] {
+  --bg: #ffffff;             /* page plane, light -- plain white per request */
+  --panel: #f7f7f5;          /* chart/panel surface, light -- subtle off-white
+                                 so cards still read as distinct from a pure-
+                                 white page */
+  --panel-hover: #eeeeeb;
+  --border: #e2e2de;         /* gridline (hairline), light -- kept neutral so
+                                 it doesn't compete with the accent colors */
+  --text: #141414;           /* primary ink, light (derived) */
+  --muted: #5c5c58;          /* secondary ink, light (derived) */
+  --accent: #659287;         /* brand accent, light step -- stays the green
+                                 for buttons/links (kept as the one
+                                 consistent interactive color rather than
+                                 cycling all three, to avoid a "rainbow
+                                 buttons" look) */
+  --accent-pink: #e05780;    /* decorative 2nd tone, light */
+  --accent-orange: #e8873d;  /* decorative 3rd tone, light */
+  --green-text: #006300;     /* darker "success text" step -- the plain
+                                 status green (#0ca30c) is only 3.27:1 on
+                                 the light surface, borderline for small
+                                 text; this step is for exactly that use */
+  --amber-text: #8a5a00;     /* plain warning (#fab219) is only 1.79:1 on
+                                 light -- close to illegible as text, not
+                                 just borderline. Badges here use the
+                                 status color AS the label text itself
+                                 (not a decorative dot next to a neutral
+                                 label), so this darker step is used
+                                 specifically for that case. */
+}
+
+:root[data-theme="dark"] {
+  --bg: #1C0A00;
+  --panel: #361500;
+  --panel-hover: #4b2600;
+  --border: #603601;
+  --text: #CC9544;
+  --muted: #a3813f;
+  --accent: #88BDA4;
+  --accent-pink: #a4623f;
+  --accent-orange: #CC9544;
+  --green-text: #0ca30c;
+  --amber-text: #fab219;
 }
 
 * { box-sizing: border-box; }
@@ -347,6 +384,16 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
 .search-group li:last-child { border-bottom: none; }
 
 .session-info { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+.theme-toggle {
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.theme-toggle:hover { background: var(--panel-hover); }
 
 .login-screen {
   display: flex;
