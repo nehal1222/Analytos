@@ -333,6 +333,37 @@ function SubmitDocument({ onIngested }) {
   );
 }
 
+function SeedBootstrap({ onSeeded }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+
+  const run = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.seedBootstrap();
+      onSeeded();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="seed-bootstrap">
+      <p className="muted">
+        Nothing ingested yet on this instance. Load the built-in seed documents (seed-data/) as one
+        review run -- you'll still approve it below before it touches main.
+      </p>
+      <button type="button" onClick={run} disabled={busy}>
+        {busy ? "Ingesting seed data…" : "Load seed data"}
+      </button>
+      {error && <p className="error">{error}</p>}
+    </div>
+  );
+}
+
 export default function Review({ currentUser }) {
   const [runs, setRuns] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -351,11 +382,14 @@ export default function Review({ currentUser }) {
 
   if (!runs) return <p className="muted">Loading…</p>;
 
+  const canReview = currentUser.role === "admin" || currentUser.role === "reviewer";
+
   return (
     <div className="review">
       <div className="run-list">
         <h2>Ingestion Runs</h2>
         <SubmitDocument onIngested={reload} />
+        {runs.length === 0 && canReview && <SeedBootstrap onSeeded={reload} />}
         {runs.length === 0 && <p className="muted">No runs yet. Run the ingestion pipeline first.</p>}
         <ul>
           {runs.map((r) => (

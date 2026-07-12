@@ -71,4 +71,5 @@ export const api = {
   sourceDoc: (filename) => req(`/source-docs/${encodeURIComponent(filename)}`),
   ingest: (filename, content) =>
     req("/ingest", { method: "POST", body: JSON.stringify({ filename, content }) }),
+  seedBootstrap: () => req("/admin/seed-bootstrap", { method: "POST" }),
 };

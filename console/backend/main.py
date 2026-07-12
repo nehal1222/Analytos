@@ -471,3 +471,33 @@ def ingest_document(body: IngestRequest):
         raise HTTPException(500, f"ingestion failed:\n{result.stdout}\n{result.stderr}")
 
     return {"filename": safe_name, "output": result.stdout}
+
+
+@app.post("/api/admin/seed-bootstrap", dependencies=[Depends(auth.require_role("admin", "reviewer"))])
+def seed_bootstrap():
+    """One-time (idempotent) helper: ingest every doc already sitting in
+    seed-data/ (baked into the image) as a single review run. Exists
+    because a freshly deployed hosted instance has schema/policies applied
+    but no content -- `/api/ingest` can't be reused for this since it
+    refuses to write over a source doc that already exists. Still creates
+    a normal pending run; nothing reaches `main` until a reviewer approves
+    it from the Review Queue like any other run.
+    """
+    docs = sorted(SEED_DATA_DIR.glob("*.md"))
+    if not docs:
+        raise HTTPException(400, "no seed documents found in seed-data/")
+    try:
+        result = subprocess.run(
+            [sys.executable, str(PIPELINE_DIR / "ingest.py"), *[str(d) for d in docs]],
+            cwd=PIPELINE_DIR,
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+    except subprocess.TimeoutExpired as e:
+        raise HTTPException(504, "ingestion pipeline timed out") from e
+
+    if result.returncode != 0:
+        raise HTTPException(500, f"ingestion failed:\n{result.stdout}\n{result.stderr}")
+
+    return {"docs": [d.name for d in docs], "output": result.stdout}
