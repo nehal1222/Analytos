@@ -15,6 +15,8 @@
   --text: #CC9544;             /* primary ink, dark -- brand step (lightest/brightest) */
   --muted: #a3813f;            /* secondary ink, dark (derived, dimmer gold) */
   --accent: #88BDA4;           /* brand accent (green family), dark step */
+  --accent-pink: #a4623f;      /* decorative 2nd tone, dark -- muted terracotta to fit the warm palette */
+  --accent-orange: #CC9544;    /* decorative 3rd tone, dark -- reuses the brand gold */
   --green: #0ca30c;           /* status: good -- fixed, not themed */
   --green-text: #0ca30c;      /* "delta up / success" text, dark step */
   --amber: #fab219;           /* status: warning -- fixed, not themed */
@@ -25,15 +27,22 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #E6F2DD;             /* page plane, light -- lightest brand step */
-    --panel: #ffffff;          /* chart/panel surface, light (derived) */
-    --panel-hover: #dbeed0;
-    --border: #B1D3B9;         /* gridline (hairline), light -- brand step */
-    --text: #16241f;           /* primary ink, light (derived) */
-    --muted: #4d6b5e;          /* secondary ink, light (derived) */
-    --accent: #659287;         /* brand accent, light step (darkest/most
-                                   saturated brand color -- kept dark enough
-                                   that white button text stays legible) */
+    --bg: #ffffff;             /* page plane, light -- plain white per request */
+    --panel: #f7f7f5;          /* chart/panel surface, light -- subtle off-white
+                                   so cards still read as distinct from a pure-
+                                   white page */
+    --panel-hover: #eeeeeb;
+    --border: #e2e2de;         /* gridline (hairline), light -- kept neutral so
+                                   it doesn't compete with the accent colors */
+    --text: #141414;           /* primary ink, light (derived) */
+    --muted: #5c5c58;          /* secondary ink, light (derived) */
+    --accent: #659287;         /* brand accent, light step -- stays the green
+                                   for buttons/links (kept as the one
+                                   consistent interactive color rather than
+                                   cycling all three, to avoid a "rainbow
+                                   buttons" look) */
+    --accent-pink: #e05780;    /* decorative 2nd tone, light */
+    --accent-orange: #e8873d;  /* decorative 3rd tone, light */
     --green-text: #006300;     /* darker "success text" step -- the plain
                                    status green (#0ca30c) is only 3.27:1 on
                                    the light surface, borderline for small
@@ -431,6 +440,8 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
   transform-box: fill-box;
   animation: graphNodePulse 2.6s ease-in-out infinite;
 }
+.graph-edge.tone-pink, .graph-node.tone-pink { stroke: var(--accent-pink); fill: var(--accent-pink); }
+.graph-edge.tone-orange, .graph-node.tone-orange { stroke: var(--accent-orange); fill: var(--accent-orange); }
 @keyframes graphDashFlow { to { stroke-dashoffset: -48; } }
 @keyframes graphNodePulse {
   0%, 100% { opacity: 0.55; transform: scale(1); }
@@ -591,6 +602,14 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
   margin-bottom: 18px;
 }
 .booklet-page-icon svg { width: 28px; height: 28px; }
+.booklet-page-icon.tone-pink {
+  color: var(--accent-pink);
+  background: color-mix(in srgb, var(--accent-pink) 16%, var(--panel-hover));
+}
+.booklet-page-icon.tone-orange {
+  color: var(--accent-orange);
+  background: color-mix(in srgb, var(--accent-orange) 16%, var(--panel-hover));
+}
 .booklet-kicker {
   font-size: 12px;
   text-transform: uppercase;

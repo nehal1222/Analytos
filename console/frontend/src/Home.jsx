@@ -105,13 +105,15 @@ const GRAPH_EDGES = [
   [0, 6], [1, 6], [2, 6], [6, 3], [6, 4], [3, 5], [3, 2],
 ];
 
+const TONES = ["tone-accent", "tone-pink", "tone-orange"];
+
 function GraphIllustration() {
   return (
     <svg className="graph-illustration" viewBox="0 0 420 170" aria-hidden="true">
       {GRAPH_EDGES.map(([a, b], i) => (
         <line
           key={i}
-          className="graph-edge"
+          className={`graph-edge ${TONES[i % TONES.length]}`}
           x1={GRAPH_NODES[a].x}
           y1={GRAPH_NODES[a].y}
           x2={GRAPH_NODES[b].x}
@@ -122,7 +124,7 @@ function GraphIllustration() {
       {GRAPH_NODES.map((n, i) => (
         <circle
           key={i}
-          className="graph-node"
+          className={`graph-node ${TONES[i % TONES.length]}`}
           cx={n.x}
           cy={n.y}
           r={n.r}

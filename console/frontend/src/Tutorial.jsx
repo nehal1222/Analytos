@@ -122,6 +122,8 @@ const PAGES = [
   },
 ];
 
+const TONES = ["tone-accent", "tone-pink", "tone-orange"];
+
 export default function Tutorial() {
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState("next");
@@ -145,7 +147,7 @@ export default function Tutorial() {
         <div className="booklet">
           <div className="booklet-spine" aria-hidden="true" />
           <div key={index} className={`booklet-page anim-${dir}`}>
-            <div className="booklet-page-icon">{page.icon}</div>
+            <div className={`booklet-page-icon ${TONES[index % TONES.length]}`}>{page.icon}</div>
             <div className="booklet-kicker">{page.kicker}</div>
             <h2>{page.title}</h2>
             <p>{page.body}</p>
