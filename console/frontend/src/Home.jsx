@@ -87,6 +87,52 @@ function StageIcon({ children }) {
   return <div className="stage-icon">{children}</div>;
 }
 
+// A small animated illustration of the thing this product actually is: a
+// graph of typed nodes with a human-approved edge structure. Pure inline
+// SVG + CSS keyframes (no canvas/WebGL, no image assets, no library) --
+// nodes pulse and edges "flow" on a loop, staggered so it never looks
+// static without ever demanding attention from the reader.
+const GRAPH_NODES = [
+  { x: 70, y: 46, r: 7 },
+  { x: 190, y: 24, r: 7 },
+  { x: 320, y: 54, r: 7 },
+  { x: 232, y: 128, r: 7 },
+  { x: 98, y: 138, r: 7 },
+  { x: 352, y: 140, r: 7 },
+  { x: 208, y: 88, r: 11 }, // hub node
+];
+const GRAPH_EDGES = [
+  [0, 6], [1, 6], [2, 6], [6, 3], [6, 4], [3, 5], [3, 2],
+];
+
+function GraphIllustration() {
+  return (
+    <svg className="graph-illustration" viewBox="0 0 420 170" aria-hidden="true">
+      {GRAPH_EDGES.map(([a, b], i) => (
+        <line
+          key={i}
+          className="graph-edge"
+          x1={GRAPH_NODES[a].x}
+          y1={GRAPH_NODES[a].y}
+          x2={GRAPH_NODES[b].x}
+          y2={GRAPH_NODES[b].y}
+          style={{ animationDelay: `${i * 0.18}s` }}
+        />
+      ))}
+      {GRAPH_NODES.map((n, i) => (
+        <circle
+          key={i}
+          className="graph-node"
+          cx={n.x}
+          cy={n.y}
+          r={n.r}
+          style={{ animationDelay: `${i * 0.22}s` }}
+        />
+      ))}
+    </svg>
+  );
+}
+
 const STAGES = [
   {
     icon: <DocumentIcon />,
@@ -143,6 +189,7 @@ export default function Home({ onNavigate }) {
           <button className="secondary" onClick={() => onNavigate("review")}>Open Review Queue</button>
           <button className="secondary" onClick={() => onNavigate("tutorial")}>New here? View the tutorial</button>
         </div>
+        <GraphIllustration />
       </section>
 
       <section>

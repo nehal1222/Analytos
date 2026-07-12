@@ -138,13 +138,18 @@ export default function Tutorial() {
 
   return (
     <div className="tutorial">
-      <div className="booklet">
-        <div className="booklet-spine" aria-hidden="true" />
-        <div key={index} className={`booklet-page anim-${dir}`}>
-          <div className="booklet-page-icon">{page.icon}</div>
-          <div className="booklet-kicker">{page.kicker}</div>
-          <h2>{page.title}</h2>
-          <p>{page.body}</p>
+      <div className="booklet-stack">
+        <div className="booklet-page-count">
+          {index + 1} / {PAGES.length}
+        </div>
+        <div className="booklet">
+          <div className="booklet-spine" aria-hidden="true" />
+          <div key={index} className={`booklet-page anim-${dir}`}>
+            <div className="booklet-page-icon">{page.icon}</div>
+            <div className="booklet-kicker">{page.kicker}</div>
+            <h2>{page.title}</h2>
+            <p>{page.body}</p>
+          </div>
         </div>
       </div>
 

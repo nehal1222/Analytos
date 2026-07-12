@@ -52,6 +52,31 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Ambient background: three soft, slowly-drifting glows built entirely
+   from the existing accent/muted tokens (color-mix, not new hues) so it
+   reads as "this app" rather than decoration bolted on. Fixed + behind
+   everything (negative z-index) so it never interferes with layout or
+   scroll. prefers-reduced-motion turns the drift off but keeps the glow. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(560px circle at 12% 15%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 60%),
+    radial-gradient(520px circle at 88% 30%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 65%),
+    radial-gradient(640px circle at 50% 105%, color-mix(in srgb, var(--muted) 14%, transparent), transparent 65%);
+  animation: auroraDrift 26s ease-in-out infinite alternate;
+}
+@keyframes auroraDrift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-2%, 2%, 0) scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+}
+
 h1, h2, h3, h4 { line-height: 1.25; }
 h2 { font-size: 20px; margin: 0 0 16px; }
 h3 { font-size: 17px; margin: 0 0 6px; }
@@ -378,6 +403,36 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
 }
 .hero-actions button.secondary { background: transparent; color: var(--accent); }
 
+.graph-illustration {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  display: block;
+  margin: 28px auto 4px;
+  filter: drop-shadow(0 10px 24px color-mix(in srgb, var(--accent) 30%, transparent));
+}
+.graph-edge {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 7 5;
+  opacity: 0.4;
+  animation: graphDashFlow 3.2s linear infinite;
+}
+.graph-node {
+  fill: var(--accent);
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: graphNodePulse 2.6s ease-in-out infinite;
+}
+@keyframes graphDashFlow { to { stroke-dashoffset: -48; } }
+@keyframes graphNodePulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .graph-edge, .graph-node { animation: none; opacity: 0.75; }
+}
+
 .stage-icon {
   width: 56px;
   height: 56px;
@@ -406,6 +461,12 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 20px 14px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.flow-stage:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--accent) 16%, transparent);
 }
 .flow-stage h3 { font-size: 14px; margin: 0 0 6px; }
 .flow-stage p { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.4; }
@@ -426,6 +487,12 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 24px 20px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.consumer-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--accent) 16%, transparent);
 }
 .consumer-card h3 { margin: 0 0 8px; }
 .consumer-card p { font-size: 14px; color: var(--muted); margin: 0; line-height: 1.5; }
@@ -441,20 +508,59 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
    driven by remounting the page div on a new React `key` (see
    Tutorial.jsx); the browser replays the keyframe animation on every
    mount for free, no animation library or manual trigger logic needed. */
-.tutorial { display: flex; flex-direction: column; align-items: center; padding: 12px 0 32px; }
+.tutorial { display: flex; flex-direction: column; align-items: center; padding: 12px 0 40px; }
 
-.booklet {
+/* The "stack" is two skewed sheets peeking out from behind the live card --
+   overflow stays visible here so they show; the live card (.booklet) has
+   its own overflow:hidden to contain the page-turn animation cleanly. */
+.booklet-stack {
   position: relative;
   width: 100%;
   max-width: 640px;
+  perspective: 1800px;
+}
+.booklet-stack::before, .booklet-stack::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+.booklet-stack::before { transform: translate(7px, 9px) rotate(1.1deg); opacity: 0.7; z-index: 0; }
+.booklet-stack::after { transform: translate(14px, 18px) rotate(2.3deg); opacity: 0.4; z-index: -1; }
+
+.booklet-page-count {
+  position: absolute;
+  top: -14px;
+  right: 18px;
+  z-index: 2;
+  background: var(--accent);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.booklet {
+  position: relative;
+  z-index: 1;
+  width: 100%;
   min-height: 300px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.3);
   padding: 40px 44px;
-  perspective: 1600px;
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
   overflow: hidden;
+}
+.booklet:hover {
+  transform: rotateX(1.5deg) rotateY(-2.5deg);
+  box-shadow: 0 28px 56px rgba(0, 0, 0, 0.36);
 }
 .booklet-spine {
   position: absolute;
@@ -490,15 +596,28 @@ main { padding: 28px; max-width: 1140px; margin: 0 auto; }
 .booklet-page p { font-size: 15px; line-height: 1.7; color: var(--text); margin: 0; max-width: 520px; }
 
 @keyframes pageInNext {
-  from { transform: rotateY(-35deg) translateX(-16px); opacity: 0; }
-  to { transform: rotateY(0) translateX(0); opacity: 1; }
+  from { transform: rotateY(-62deg) translateX(-28px) scale(0.94); opacity: 0; }
+  60% { opacity: 1; }
+  to { transform: rotateY(0) translateX(0) scale(1); opacity: 1; }
 }
 @keyframes pageInPrev {
-  from { transform: rotateY(35deg) translateX(16px); opacity: 0; }
-  to { transform: rotateY(0) translateX(0); opacity: 1; }
+  from { transform: rotateY(62deg) translateX(28px) scale(0.94); opacity: 0; }
+  60% { opacity: 1; }
+  to { transform: rotateY(0) translateX(0) scale(1); opacity: 1; }
 }
-.booklet-page.anim-next { animation: pageInNext 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
-.booklet-page.anim-prev { animation: pageInPrev 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.booklet-page.anim-next { animation: pageInNext 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.booklet-page.anim-prev { animation: pageInPrev 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.05); }
+}
+.booklet-page-icon { animation: iconFloat 3s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .booklet-page.anim-next, .booklet-page.anim-prev { animation: none; }
+  .booklet-page-icon { animation: none; }
+}
 
 .booklet-controls {
   display: flex;
