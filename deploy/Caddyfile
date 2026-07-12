@@ -23,7 +23,13 @@
 		reverse_proxy 127.0.0.1:9002
 	}
 
+	# Dashboard UI (built by the frontend-builder Docker stage). try_files
+	# falls back to index.html for any path that isn't a real static asset
+	# so client-side routing (React state, not URL-based here, but keeps
+	# this correct if that changes) doesn't 404 on refresh.
 	handle {
-		respond "Analytos Context Layer -- see /api/docs and /mcp/{content-agent,gtm-agent}" 200
+		root * /app/console/frontend/dist
+		try_files {path} /index.html
+		file_server
 	}
 }

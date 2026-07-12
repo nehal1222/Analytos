@@ -9,7 +9,16 @@
 # disk mounted there (see render.yaml) -- Render's free tier has no
 # persistent disk, which is why this needs a small paid plan.
 
-# ---- Stage 1: build the Rust engine from source (Linux target) ---------
+# ---- Stage 1: build the dashboard frontend static bundle ----------------
+FROM node:20-slim AS frontend-builder
+
+WORKDIR /frontend
+COPY console/frontend/package.json console/frontend/package-lock.json ./
+RUN npm ci
+COPY console/frontend/ ./
+RUN npm run build
+
+# ---- Stage 2: build the Rust engine from source (Linux target) ---------
 FROM rust:1-bookworm AS rust-builder
 
 # protobuf-compiler alone doesn't include the "well-known types" proto
@@ -49,6 +58,7 @@ COPY --from=rust-builder /omnigraph/target/release/omnigraph-server /usr/local/b
 
 WORKDIR /app
 COPY . /app
+COPY --from=frontend-builder /frontend/dist /app/console/frontend/dist
 
 RUN pip install --no-cache-dir \
     -r pipeline/requirements.txt \

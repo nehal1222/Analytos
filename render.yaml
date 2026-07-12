@@ -11,16 +11,17 @@
 # an explicit choice, not an oversight (see PRODUCTION_READINESS.md for
 # the real fix: S3-compatible storage, same engine support either way).
 #
-# After first deploy, Render assigns this service's public URL
-# (https://<name>-<hash>.onrender.com). Once you have it:
-#   - set FRONTEND_ORIGIN below to your Netlify URL (needed for the
-#     dashboard's cookie-based login to work cross-origin)
+# The dashboard frontend is built (frontend-builder stage in Dockerfile)
+# and served by Caddy from the same origin as the API/MCP endpoints -- no
+# separate Netlify deploy, no cross-site cookie concerns. After first
+# deploy, Render assigns this service's public URL
+# (https://<name>-<hash>.onrender.com). That single URL is:
+#   - the dashboard: https://<this-service>.onrender.com/
+#   - the dashboard API: https://<this-service>.onrender.com/api
 #   - the MCP endpoints for an external client (Claude Desktop/Code, or
-#     the evaluator) are:
+#     the evaluator):
 #       https://<this-service>.onrender.com/mcp/content-agent
 #       https://<this-service>.onrender.com/mcp/gtm-agent
-#   - the dashboard API (what the Netlify frontend calls) is:
-#       https://<this-service>.onrender.com/api
 
 services:
   - type: web
@@ -29,12 +30,10 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     envVars:
-      - key: FRONTEND_ORIGIN
-        sync: false # fill in: your Netlify URL, e.g. https://analytos.netlify.app
       - key: COOKIE_SECURE
         value: "true"
       - key: COOKIE_SAMESITE
-        value: "none" # required: frontend (Netlify) and backend (Render) are different domains
+        value: "strict" # safe now: dashboard + API are the same origin
       - key: SESSION_SECRET
         generateValue: true
       - key: MCP_ALLOWED_HOSTS
