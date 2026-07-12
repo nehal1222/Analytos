@@ -43,3 +43,11 @@ services:
         # Misdirected Request) unless explicitly allowlisted, and behind
         # Caddy the request's real Host header is this public hostname,
         # not 127.0.0.1.
+      - key: BOOTSTRAP_REVIEWER_USERNAME
+        sync: false # fill in: e.g. nehal -- see main.py _startup for why this exists
+      - key: BOOTSTRAP_REVIEWER_PASSWORD
+        sync: false # fill in: a real password, set here, never in code or chat
+      - key: BOOTSTRAP_REVIEWER_DISPLAY_NAME
+        sync: false # fill in: e.g. "Nehal"
+      - key: BOOTSTRAP_REVIEWER_ACTOR
+        value: act-reviewer-nehal # must match an actor in cluster/tokens.dev.json

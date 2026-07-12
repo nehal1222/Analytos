@@ -67,6 +67,24 @@ app.add_middleware(
 @app.on_event("startup")
 def _startup() -> None:
     auth.init_db()
+    # users.db lives in the container's own filesystem, not the /data
+    # volume -- on a host with no persistent disk (see render.yaml) it's
+    # wiped on every redeploy/spin-down along with everything else, which
+    # would otherwise mean a locked-out dashboard with no shell access to
+    # re-run manage_users.py. Re-provisioning one reviewer account from
+    # env vars on every boot (upsert, so safe if users.db does survive)
+    # makes login self-healing instead of a manual step. Optional: only
+    # runs if both vars are set.
+    bootstrap_user = os.environ.get("BOOTSTRAP_REVIEWER_USERNAME")
+    bootstrap_password = os.environ.get("BOOTSTRAP_REVIEWER_PASSWORD")
+    if bootstrap_user and bootstrap_password:
+        auth.create_user(
+            bootstrap_user,
+            bootstrap_password,
+            os.environ.get("BOOTSTRAP_REVIEWER_DISPLAY_NAME", bootstrap_user),
+            "reviewer",
+            os.environ.get("BOOTSTRAP_REVIEWER_ACTOR", "act-reviewer-nehal"),
+        )
 
 
 ADMIN = client_for("act-admin")
