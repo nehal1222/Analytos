@@ -24,6 +24,29 @@ mcp-server/mcp_server.py --role {content-agent,gtm-agent}
 agents/{content_agent.py, gtm_agent.py}  (Claude + MCP tool use)
 ```
 
+## Screenshots
+
+**Home** — architecture overview, live demo entry points, and the animated
+knowledge-graph illustration:
+
+![Home page](docs/screenshots/home-hero.png)
+
+**What actually happens to a document**, and the two read paths once it's on
+`main`:
+
+![Ingest-to-merge flow and dashboard/MCP consumers](docs/screenshots/home-flow.png)
+
+**Review Queue** — every ingestion run lands on its own branch with the raw
+source documents attached for the reviewer to check against:
+
+![Review Queue with pending run and source documents](docs/screenshots/review-queue.png)
+
+**Approve/reject with a real diff** — node/edge counts, per-node
+insert/update detail, and reviewer attribution before anything reaches
+`main`:
+
+![Diff stats and node-level detail](docs/screenshots/review-diff.png)
+
 ## Repo layout
 
 ```
